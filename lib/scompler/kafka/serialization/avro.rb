@@ -14,11 +14,11 @@ module Scompler
         end
 
         def serializer
-          @serializer || Scompler::Avro::Serializer.new(avro: schema_store.as_avro)
+          @serializer ||= Scompler::Avro::Serializer.new(avro: schema_store.as_avro)
         end
 
         def deserializer
-          @deserializer || Scompler::Avro::Deserializer.new(avro: schema_store.as_avro)
+          @deserializer ||= Scompler::Avro::Deserializer.new(avro: schema_store.as_avro)
         end
 
         protected

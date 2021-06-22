@@ -20,7 +20,7 @@ module Scompler
         external_options = options.except(*PRODUCER_OPTIONS)
         context.topic topic_name, external_options
 
-        context.redefine_method :produce do |resource_id|
+        context.send :define_method, :produce do |resource_id|
           resource = resource_class.find_by(external_idx: resource_id)
           return if resource.blank?
 
@@ -45,9 +45,9 @@ module Scompler
       end
 
       def serializer_class_names
-        names = [resource_name]
-        names.unshift(resource_name.demodulize) if options.key?(:resource)
-        names
+        [resource_name].tap do |names|
+          names.unshift(resource_name.demodulize) if options.key?(:resource)
+        end
       end
 
       def serializer_class

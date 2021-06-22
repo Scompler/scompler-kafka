@@ -3,6 +3,24 @@
 module Scompler
   module Kafka
     class BaseProducer
+      class << self
+        def topic(name, options = {})
+          topics[name] = Scompler::Kafka::Topic.new(name, options)
+        end
+
+        def topics
+          @topics ||= ActiveSupport::HashWithIndifferentAccess.new
+        end
+
+        def default_producer(options = {})
+          Scompler::Kafka::DefaultProducer.new(self, options).setup
+        end
+
+        def call(*options)
+          new.call(*options)
+        end
+      end
+
       def initialize
         @messages = {}
       end
@@ -67,24 +85,6 @@ module Scompler
 
       def topic_mapper
         Scompler::Kafka.config.topic_mapper
-      end
-
-      class << self
-        def topic(name, options = {})
-          topics[name] = Scompler::Kafka::Topic.new(name, options)
-        end
-
-        def topics
-          @topics ||= ActiveSupport::HashWithIndifferentAccess.new
-        end
-
-        def default_producer(options = {})
-          Scompler::Kafka::DefaultProducer.new(self, options).setup
-        end
-
-        def call(*options)
-          new.call(*options)
-        end
       end
     end
   end
