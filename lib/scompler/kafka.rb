@@ -12,6 +12,8 @@ require_relative 'kafka/configuration'
 
 module Scompler
   module Kafka
+    EXTERNAL_IDX_HEADER = 'X-Scompler-External-Idx'
+
     class << self
       def configure(&block)
         block.arity.zero? ? instance_eval(&block) : yield(config)

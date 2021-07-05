@@ -20,16 +20,29 @@ module Scompler
         external_options = options.except(*PRODUCER_OPTIONS)
         context.topic topic_name, external_options
 
-        context.send :define_method, :produce do |resource_id|
-          resource = resource_class.find_by(external_idx: resource_id)
-          return if resource.blank?
+        if deletion?
+          context.send :define_method, :produce do |resource_id|
+            produce_to(topic_name, nil, headers: { EXTERNAL_IDX_HEADER => resource_id })
+          end
+        else
+          context.send :define_method, :produce do |resource_id|
+            resource = resource_class.find_by(external_idx: resource_id)
+            return if resource.blank?
 
-          serializer = serializer_class.new(resource)
-          produce_to topic_name, serializer.as_json
+            serializer = serializer_class.new(resource)
+            produce_to(topic_name, serializer.as_json,
+                       headers: { EXTERNAL_IDX_HEADER => resource_id })
+          end
         end
       end
 
       protected
+
+      def deletion?
+        @deletion ||= options.fetch(:deletion) do
+          context.to_s.demodulize.start_with?('Deleted')
+        end
+      end
 
       def version
         @version ||= options.fetch(:version, 1)
