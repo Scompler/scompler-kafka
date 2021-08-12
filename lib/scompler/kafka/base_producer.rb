@@ -34,6 +34,11 @@ module Scompler
         raise "Unknown #{topic_name} topic" if topic.blank?
 
         messages[topic_name] ||= []
+
+        if Scompler::Kafka.test?
+          return messages[topic_name] << { data: data, topic_name: topic_name, options: options }
+        end
+
         messages[topic_name] << [
           topic.serializer.call(data, **serializer_options_for(topic, options)),
           options.merge(topic: topic_name)
@@ -42,6 +47,7 @@ module Scompler
 
       def call(*options)
         produce(*options)
+        return fake_deliver! if Scompler::Kafka.test?
         deliver!
       end
 
@@ -85,6 +91,14 @@ module Scompler
 
       def topic_mapper
         Scompler::Kafka.config.topic_mapper
+      end
+
+      def fake_deliver!
+        messages.each_value do |topic_messages|
+          topic_messages.each do |data|
+            DeliveryBoy.send(:deliver, data, topic: data[:topic_name])
+          end
+        end
       end
     end
   end

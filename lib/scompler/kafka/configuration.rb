@@ -13,6 +13,7 @@ module Scompler
       setting :scope, :scompler
       setting :backend, :inline
       setting :serializers_namespace, 'Kafka'
+      setting :environment, 'production'
       setting :kafka do
         setting :brokers, 'localhost:9092'
         setting :client_id, 'scompler'

@@ -23,6 +23,14 @@ module Scompler
       def config
         @config ||= Kafka::Configuration.config.reload
       end
+
+      def test?
+        config.environment == 'test'
+      end
+
+      def test_mode!
+        config.environment = 'test'
+      end
     end
   end
 end
