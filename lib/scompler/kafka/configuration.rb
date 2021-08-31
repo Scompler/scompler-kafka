@@ -2,6 +2,10 @@
 
 require 'dry-configurable'
 
+require_relative 'topic_mapper'
+require_relative 'serialization/avro'
+require_relative 'interchanger/base64'
+
 module Scompler
   module Kafka
     class Configuration
@@ -9,7 +13,8 @@ module Scompler
 
       setting :serializer, -> { serializer_for(config.scope).serializer }
       setting :deserializer, -> { serializer_for(config.scope).deserializer }
-      setting :topic_mapper, Scompler::Kafka::TopicMapper.new
+      setting :topic_mapper, TopicMapper.new
+      setting :interchanger, Interchanger::Base64.new
       setting :scope, :scompler
       setting :backend, :inline
       setting :serializers_namespace, 'Kafka'
@@ -71,9 +76,9 @@ module Scompler
         def serializer_for(registry_name)
           @serializer_for ||=
             if defined?(Scompler::Avro)
-              Scompler::Kafka::Serialization::Avro.new(registry_name)
+              Serialization::Avro.new(registry_name)
             else
-              Scompler::Kafka::Serialization::Base.new
+              Serialization::Base.new
             end
         end
       end
