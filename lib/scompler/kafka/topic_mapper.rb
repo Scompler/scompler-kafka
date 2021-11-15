@@ -6,21 +6,21 @@ module Scompler
       # @param topic [String, Symbol] The topic
       # @return [String, Symbol] topic as on input
       # @example
-      #   incoming('uat.scompler.topic.created') #=> 'topic_created'
+      #   incoming('uat.scompler.topic_created') #=> 'topic_created'
       def incoming(topic)
-        topic.to_s.gsub(prefix, '').gsub('.', '_')
+        topic.to_s.gsub(prefix, '')
       end
 
       # @param topic [String, Symbol] The topic
       # @return [String, Symbol] topic as on input
       # @example
-      #   outgoing('topic_created') #=> 'topic.created'
+      #   outgoing('topic_created') #=> 'uat.scompler.topic_created'
       def outgoing(topic)
-        [prefix, topic.to_s.gsub('_', '.')].join
+        [prefix, topic.to_s].join
       end
 
       def schema_name_from_topic(topic)
-        topic.to_s.split('_')[0...-1].join('_')
+        topic.to_s
       end
 
       def prefix

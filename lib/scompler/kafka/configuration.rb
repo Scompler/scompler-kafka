@@ -2,10 +2,6 @@
 
 require 'dry-configurable'
 
-require_relative 'topic_mapper'
-require_relative 'serialization/avro'
-require_relative 'interchanger/base64'
-
 module Scompler
   module Kafka
     class Configuration
@@ -18,6 +14,7 @@ module Scompler
       setting :scope, :scompler
       setting :backend, :inline
       setting :serializers_namespace, 'Kafka'
+
       setting :kafka do
         setting :brokers, 'localhost:9092'
         setting :client_id, 'scompler'

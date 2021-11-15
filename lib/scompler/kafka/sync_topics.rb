@@ -3,19 +3,36 @@
 module Scompler
   module Kafka
     class SyncTopics
+      TOPIC_OPTIONS = %i[num_partitions replication_factor timeout config].freeze
+
+      class << self
+        def call(classes)
+          new(classes).call
+        end
+      end
+
       def initialize(classes)
         @classes = Array(classes)
         @app_topics = []
       end
 
-      def call
-        sync
-        clean
+      def sync
+        p "Going to sync #{classes.size} producers"
+        classes.each do |klass|
+          sync_topics_for(klass)
+        end
       end
 
-      class << self
-        def call(classes)
-          new(classes).call
+      alias call sync
+
+      def clear
+        removed_topics = kafka_topics - app_topics
+        return if removed_topics.blank?
+
+        p "Found #{removed_topics.size} removed topics"
+        removed_topics.each do |name|
+          p "Remove #{name} topic"
+          kafka.delete_topic(name)
         end
       end
 
@@ -35,28 +52,10 @@ module Scompler
         Scompler::Kafka.config.topic_mapper
       end
 
-      def clean
-        removed_topics = kafka_topics - app_topics
-        return if removed_topics.blank?
-
-        p "Found #{removed_topics.size} removed topics"
-        removed_topics.each do |name|
-          p "Remove #{name} topic"
-          kafka.delete_topic(name)
-        end
-      end
-
-      def sync
-        p "Going to sync #{classes.size} producers"
-        classes.each do |klass|
-          sync_topics_for(klass)
-        end
-      end
-
       def sync_topics_for(klass)
         p "Going to sync #{klass} topics"
-        klass.topics.each do |name, topic|
-          options = topic.options
+        klass.topics.each do |_, topic|
+          name, options = topic.name, topic.options.slice(*TOPIC_OPTIONS)
 
           full_name = topic_mapper.outgoing(name)
           @app_topics << full_name
@@ -70,7 +69,7 @@ module Scompler
           return if options.blank?
 
           alter_partitions_for(name, options.slice(:num_partitions, :timeout))
-          alter_configs_for(name, options.fetch(:config))
+          alter_config_for(name, options.fetch(:config))
         else
           create_topic(name, options)
         end
@@ -81,14 +80,14 @@ module Scompler
         kafka.create_topic(name, options)
       end
 
-      def alter_configs_for(name, configs = {})
-        return if configs.blank?
+      def alter_config_for(name, config = {})
+        return if config.blank?
 
-        existing_configs = kafka.describe_topic(name, configs.keys)
-        return if existing_configs == configs
+        existing_config = kafka.describe_topic(name, config.keys)
+        return if existing_config == config
 
-        p "Alter #{name} topic configs with params #{configs}"
-        kafka.alter_topic(name, configs)
+        p "Alter #{name} topic config with params #{config}"
+        kafka.alter_topic(name, config)
       end
 
       def alter_partitions_for(name, num_partitions:, timeout: 30)
