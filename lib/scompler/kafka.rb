@@ -1,16 +1,24 @@
 # frozen_string_literal: true
 
 require 'delivery_boy'
-
-require_relative 'kafka/topic'
-require_relative 'kafka/base_producer'
-require_relative 'kafka/default_producer'
-require_relative 'kafka/sync_topics'
-require_relative 'kafka/extensions/topic_attributes'
-require_relative 'kafka/configuration'
+require 'active_support/dependencies/autoload'
+require 'active_support/logger'
+require 'active_support/core_ext/module/delegation'
 
 module Scompler
   module Kafka
+    extend ActiveSupport::Autoload
+
+    autoload :BaseProducer
+    autoload :Configuration
+    autoload :DefaultProducer
+    autoload :Extensions
+    autoload :Interchanger
+    autoload :Serialization
+    autoload :SyncTopics
+    autoload :Topic
+    autoload :TopicMapper
+
     EXTERNAL_IDX_HEADER = 'X-Scompler-External-Idx'
 
     class << self
