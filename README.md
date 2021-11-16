@@ -5,7 +5,7 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'scompler-kafka'
+gem 'scompler-kafka', git: 'https://github.com/Scompler/scompler-kafka.git', tag: 'v0.1.3'
 ```
 
 And then execute:
@@ -18,7 +18,36 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+The simple usage example.
+
+First of all you need to define a producer class
+
+```ruby
+class GreetingsProducer < Scompler::Kafka::BaseProducer
+  topic :greetings,
+        num_partitions: 4,
+        replication_factor: 2,
+        config: { 'max.message.bytes' => 100_000 }
+
+  def produce(message = 'Hello World')
+    produce_to(:greetings, {message: message})
+  end
+end
+```
+
+See the full list of topic config parameters at https://kafka.apache.org/documentation/#topicconfigs
+
+Now you need to create a Kafka topic on backend side
+
+```ruby
+Scompler::Kafka::SyncTopics.call(GreetingsProducer)
+```
+
+And finally you can send a producer message to the specific topic
+
+```ruby
+GreetingsProducer.produce
+```
 
 ## Development
 
