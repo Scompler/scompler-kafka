@@ -2,6 +2,10 @@
 
 require 'dry-configurable'
 
+require_relative 'topic_mapper'
+require_relative 'serialization/avro'
+require_relative 'interchanger/base64'
+
 module Scompler
   module Kafka
     class Configuration
