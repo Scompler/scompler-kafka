@@ -19,8 +19,6 @@ module Scompler
         def call(*options)
           new.call(*options)
         end
-
-        alias produce call
       end
 
       def initialize

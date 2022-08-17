@@ -18,7 +18,7 @@ module Scompler
         topic_name = self.topic_name
 
         external_options = options.except(*PRODUCER_OPTIONS)
-        context.topic topic_name, external_options.reverse_merge(schema_name: schema_name)
+        context.topic topic_name, external_options
 
         if deletion?
           context.send :define_method, :produce do |resource_id|
@@ -81,7 +81,7 @@ module Scompler
 
       def topic_name
         @topic_name ||= options.fetch(:topic) do
-          [schema_name, event_name].join('.')
+          [schema_name, event_name].join('_')
         end
       end
 
