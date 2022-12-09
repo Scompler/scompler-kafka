@@ -6,17 +6,17 @@ module Scompler
       # @param topic [String, Symbol] The topic
       # @return [String, Symbol] topic as on input
       # @example
-      #   incoming('uat.scompler.topic.created') #=> 'topic_created'
+      #   incoming('uat_scompler_topic_created') #=> 'topic_created'
       def incoming(topic)
-        topic.to_s.gsub(prefix, '').gsub('.', '_')
+        topic.to_s.gsub(prefix, '')
       end
 
       # @param topic [String, Symbol] The topic
-      # @return [String, Symbol] topic as on input
+      # @return [String, Symbol] topic as on input with prefix
       # @example
-      #   outgoing('topic_created') #=> 'topic.created'
+      #   outgoing('topic_created') #=> 'uat_scompler_topic_created'
       def outgoing(topic)
-        [prefix, topic.to_s.gsub('_', '.')].join
+        [prefix, topic.to_s].join
       end
 
       def schema_name_from_topic(topic)
@@ -27,7 +27,7 @@ module Scompler
         @prefix ||= [
           ENV['CLUSTER_NAME'],
           Scompler::Kafka.config.scope.to_s
-        ].reject(&:blank?).join('.').concat('.')
+        ].reject(&:blank?).join('_').concat('_')
       end
     end
   end
