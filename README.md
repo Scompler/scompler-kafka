@@ -1,3 +1,5 @@
+## 🚨 NOTE: The repository has been migrated to Gitlab. Please do not use it anymore. Link: https://gitlab.scompler.dev/scompler-org/scompler-kafka
+
 # Scompler::Kafka
 
 ## Installation
